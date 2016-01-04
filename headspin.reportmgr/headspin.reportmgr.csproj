@@ -40,10 +40,17 @@
   </ItemGroup>
   <ItemGroup>
     <Compile Include="IReporter.cs" />
+    <Compile Include="ReporterHelpers.cs" />
     <Compile Include="ReportMgr.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
     <Compile Include="ReportMgrFactory.cs" />
     <Compile Include="StoredProcedureReporter.cs" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\headspin.core.services\headspin.jsonutilities\headspin.jsonutilities.csproj">
+      <Project>{07d61eea-419e-41a3-9f23-ddbbf590e4d2}</Project>
+      <Name>headspin.jsonutilities</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

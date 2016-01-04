@@ -6,8 +6,17 @@ using System.Threading.Tasks;
 
 namespace headspin.reportmgr
 {
-    interface IReporter
+    public interface IReporter
     {
         System.IO.StringWriter Download();
     }
+
+
+
+
+
+
+
+
+
 }

@@ -29,3 +29,12 @@ headspin.jsonutilities/obj/Debug/headspin.jsonutilities.csproj.FileListAbsolute.
 headspin.jsonutilities/obj/Debug/headspin.jsonutilities.csprojResolveAssemblyReference.cache
 headspin.jsonutilities/obj/Debug/headspin.jsonutilities.dll
 headspin.jsonutilities/obj/Debug/headspin.jsonutilities.pdb
+headspin.reportmgr/bin/Debug/Newtonsoft.Json.dll
+headspin.reportmgr/bin/Debug/Newtonsoft.Json.pdb
+headspin.reportmgr/bin/Debug/Newtonsoft.Json.xml
+headspin.reportmgr/bin/Debug/headspin.jsonutilities.dll
+headspin.reportmgr/bin/Debug/headspin.jsonutilities.pdb
+headspin.reportmgr/bin/Debug/headspin.reportmgr.dll
+headspin.reportmgr/bin/Debug/headspin.reportmgr.pdb
+headspin.reportmgr/obj/Debug/headspin.reportmgr.dll
+headspin.reportmgr/obj/Debug/headspin.reportmgr.pdb

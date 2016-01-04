@@ -6,11 +6,14 @@ using System.Threading.Tasks;
 
 namespace headspin.reportmgr
 {
-    class StoredProcedureReporter : IReporter
+    internal class StoredProcedureReporter : IReporter
     {
-        public static System.IO.StringWriter Download()
+        public System.IO.StringWriter Download()
         {
+            System.IO.StringWriter writer = new System.IO.StringWriter();
 
+            return writer;
         }
     }
+
 }

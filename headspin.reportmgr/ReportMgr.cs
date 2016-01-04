@@ -11,15 +11,11 @@ namespace headspin.reportmgr
 
         public static System.IO.StringWriter Download(string name)
         {
-            System.IO.StringWriter writer = new System.IO.StringWriter();
+            IReporter writer = null;
 
-            return writer;
+            return writer.Download();
         }
-
-        
-
+            
     }
-
-
 
 }
