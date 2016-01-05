@@ -1,0 +1,73 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".vbhtml" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+
+  @section BottomScript
+             <script type="text/javascript">
+                 $(document).ready(function () {
+
+                     $(".datepicker").datepicker({
+                         dateFormat: "m/d/yy",
+                         onSelect: function (dttxt) {
+                             if (jQuery.trim(dttxt) != "") {
+                                 $(this).removeClass("input-validation-error");
+                             }
+                         }
+                     });
+
+//                    
+
+                   });
+             </script>
+        End Section
+
+
+<#  foreach(Table tbl in tables){#>    
+     
+	@ModelType  <#=tbl.ClassName#>
+
+	@Code
+	ViewData("Title") = "Manage <#=tbl.ClassName#>  (Add/Edit/Delete) "
+	End Code
+
+	<div>
+	<thead><tr><th></th></tr></thead>
+	<tbody>
+	@code
+		For Each i<#=tbl.ClassName#> as <#=tbl.ClassName#> in model.<#=tbl.ClassName#>s
+	
+		@<tr><td></td></tr>
+
+		Next
+	end code
+		
+	</tbody>
+	</div>
+
+	<div></div>
+
+	<form>
+		<# foreach(var col in tbl.Columns){	#>        
+        <# if (col.CleanName == tbl.PrimaryKey) { #>   
+
+		@Html.HiddenFor(function(m) m.<#=col.CleanName#>) ' new with {.class="hidden"})
+
+	
+        <# } else if (
+				(col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && 
+			(col.CleanName != "LockId") && (col.CleanName != "EditedBy") && (col.CleanName != "AddedBy") ) { #>
+        
+		
+		@Html.TextBoxFor(function(m) m.<#=col.CleanName#>), new with {.class="field"})
+
+        <# } #>
+		<# } #>
+
+	</form>
+       
+
+	 
+<#}#>

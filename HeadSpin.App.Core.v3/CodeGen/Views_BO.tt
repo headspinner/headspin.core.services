@@ -1,0 +1,188 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".cs" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+using System;
+using System.ComponentModel;
+using System.Linq;
+using TJM.Core;
+
+namespace <#=Namespace#>
+{
+    
+    
+<#  foreach(Table tbl in tables){#>    
+      
+	public class <#=tbl.ClassName#>: cBOBase
+	{       
+	    public <#=tbl.ClassName#>()
+	    {	        
+	    }
+	    
+	    #region members
+	    
+		<# foreach(var col in tbl.Columns){	#>
+        
+        <# if (col.CleanName == tbl.PrimaryKey) { #>
+        public <#=col.SysType#><#=CheckNullable(col)#> <#=col.CleanName#>
+		{ 
+		    get
+		    {
+		        return this.ObjectId;
+		    } 
+		    set
+		    {
+				this.ObjectId = value;
+		    }
+		}
+        <# } else if ((col.CleanName != "ModifyDate") && 
+			(col.CleanName != "LockId") && (col.CleanName != "CreateDate") ) { #>
+        private <#=col.SysType#><#=CheckNullable(col)#> _<#=col.CleanName#>;
+		
+		public <#=col.SysType#><#=CheckNullable(col)#> <#=col.CleanName#>
+		{ 
+		    get
+		    {
+		        return _<#=col.CleanName#>;
+		    } 
+		    set
+		    {
+				this._<#=col.CleanName#> = this.CheckDirty(value, _<#=col.CleanName#>); 
+		    }
+		}
+        <# } #>
+		
+		
+		<# } #>
+
+        #endregion
+        
+        
+		#region load/save/val
+		
+        protected override void LoadBO(cDBReader dbReader)
+        {
+			<# foreach(var col in tbl.Columns) {
+			
+				string readerCall = col.SysType.Substring(0,1).ToUpper() + col.SysType.Substring(1);
+			#>	
+            this.<#=col.CleanName#> = dbReader.<#=readerCall#>; 			
+			<# } #>			
+		}
+        
+        protected override void SaveBO(cDB db)
+        {
+            Tbl<#=tbl.ClassName#> t = new Tbl<#=tbl.ClassName#>();
+
+            if (this.IsNew())
+            {   
+                // The Insert Statement
+                string sInsert = t.GenerateInsert();
+
+                cDBInserter dbIns = new cDBInserter(sInsert);
+
+                this.ObjectId = t.GetNextUniqueIdInt();
+                this.LockId = cHelper.GetInitialLockId_Interlocked();
+                
+                <# foreach(var col in tbl.Columns) { 
+				if ((col.CleanName != "CreateDate") && (col.CleanName != "ModifyDate")){#>                
+                dbIns.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.<#=col.CleanName#>), this.<#=col.CleanName#>);                                               
+                <# }} #>
+                
+                dbIns.Add("CreateDate", DateTime.Now);
+                dbIns.Add("ModifyDate", DateTime.Now);
+                
+                int count = db.Execute(dbIns);
+            }
+            else
+            {
+                // Update
+                string sUpdate = t.GenerateUpdate();
+
+                cDBUpdater dbUpd = new cDBUpdater(sUpdate);					
+					
+				<# foreach(var col in tbl.Columns) { 
+				if ((col.CleanName != "ModifyDate") &&					
+					(col.CleanName != tbl.PrimaryKey) &&					
+					(col.CleanName != "LockId"))
+				{#>                
+                dbUpd.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.<#=col.CleanName#>), this.<#=col.CleanName#>);                                               
+                <# }} #>                
+                dbUpd.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.LockId ), cHelper.GetNextLockId_Interlocked(this.LockId));
+                dbUpd.Add("ModifyDate", DateTime.Now);
+                dbUpd.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#>), this.<#=tbl.PrimaryKey#>);                                                               
+                dbUpd.Add("LOCK_ID_OLD", this.LockId);
+				
+                int count = db.Execute(dbUpd);
+
+                if (count == 0)
+                {
+                    cMsg msg = new cMsg();
+
+                    msg.Text = "Concurrent Update";
+
+                    throw msg;
+                }
+                this.LockId = cHelper.GetNextLockId_Interlocked(this.LockId);
+            }
+        }
+        
+    	protected override void Validate ( )
+		{
+			// @@@ Add validation
+		}
+
+        protected override void LoadBO ( int nId )
+        {
+			Tbl<#=tbl.ClassName#> t = new Tbl<#=tbl.ClassName#>();
+                       
+            // select by obid
+            string sSel = t.GenerateSelect ( true );
+            
+            cDBSelector dbSel = new cDBSelector ( sSel );
+            
+            dbSel.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#> ), nId );
+
+            cDB db = DBMGR.Mgr.GetDB ( );
+
+            cDBReader dbReader = db.Execute ( dbSel );
+
+            if ( dbReader.Read ( ) )
+            {
+                this.Load ( dbReader );
+            }         
+        }
+        protected override void RemoveBO ( cDB db )
+        {
+            decimal nId = this.ObjectId;
+
+            if ( nId > 0 )
+            {
+                // Delete the obj.
+                Tbl<#=tbl.ClassName#> t = new Tbl<#=tbl.ClassName#>();
+                
+                cDBDeleter dbDel = t.GenerateDelete ( );
+
+                dbDel.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#> ), nId );
+                dbDel.Add(t.ColumnName((int)Tbl<#=tbl.ClassName#>.COLS.LockId ), this.LockId );
+
+                int count = db.Execute ( dbDel );
+
+                if ( count == 0 )
+                {
+                    cMsg msg = new cMsg ( );
+								
+                    msg.Text = string.Format("Concurrent update - type: {0} id:{1}", this.GetType().ToString(),nId);
+
+                    throw msg;
+                }
+            }               
+        }
+        
+        #endregion
+	}
+	
+<#}#>
+}

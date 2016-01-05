@@ -1,0 +1,36 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".vb" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+Imports System
+Imports System.ComponentModel
+Imports System.Linq
+Imports HeadSpin.App.Core
+Imports HeadSpin.App.Core.Database    
+    
+<#  foreach(Table tbl in tables){#>    
+       
+	Public Class <#=tbl.ClassName#>UI
+      
+		 
+	    #Region "members"	    
+		<# foreach(var col in tbl.Columns){	#>        
+        <# if (col.CleanName == tbl.PrimaryKey) { #>        
+		Public Property  <#=col.CleanName#>() As <#=col.SysTypeVB#><#=CheckNullable(col)#>		 
+		    
+        <# } else if (
+				(col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && 
+			(col.CleanName != "LockId") && (col.CleanName != "EditedBy") && (col.CleanName != "AddedBy") ) { #>
+       
+		Public Property  <#=col.CleanName#>() As <#=col.SysTypeVB#><#=CheckNullable(col)#>		 		 
+		    
+        <# } #>
+		<# } #>
+
+        #End Region        
+        
+	
+	End Class
+<#}#>

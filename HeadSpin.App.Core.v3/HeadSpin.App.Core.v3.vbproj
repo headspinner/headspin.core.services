@@ -1,16 +1,20 @@
 ﻿<?xml version="1.0" encoding="utf-8"?>
-<Project ToolsVersion="12.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
-  <Import Project="$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props" Condition="Exists('$(MSBuildExtensionsPath)\$(MSBuildToolsVersion)\Microsoft.Common.props')" />
+<Project ToolsVersion="4.0" DefaultTargets="Build" xmlns="http://schemas.microsoft.com/developer/msbuild/2003">
   <PropertyGroup>
     <Configuration Condition=" '$(Configuration)' == '' ">Debug</Configuration>
     <Platform Condition=" '$(Platform)' == '' ">AnyCPU</Platform>
-    <ProjectGuid>{8D1B6629-6662-449A-BB98-64064CB28700}</ProjectGuid>
+    <ProductVersion>
+    </ProductVersion>
+    <SchemaVersion>
+    </SchemaVersion>
+    <ProjectGuid>{7D7B2AFA-DBB4-4D97-A6F2-3B0056C19C49}</ProjectGuid>
     <OutputType>Library</OutputType>
-    <RootNamespace>headspin.reportconfig.lib</RootNamespace>
-    <AssemblyName>headspin.reportconfig.lib</AssemblyName>
+    <RootNamespace>HeadSpin.App.Core</RootNamespace>
+    <AssemblyName>HeadSpin.App.Core</AssemblyName>
     <FileAlignment>512</FileAlignment>
     <MyType>Windows</MyType>
     <TargetFrameworkVersion>v4.5</TargetFrameworkVersion>
+    <TargetFrameworkProfile />
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <DebugSymbols>true</DebugSymbols>
@@ -18,8 +22,9 @@
     <DefineDebug>true</DefineDebug>
     <DefineTrace>true</DefineTrace>
     <OutputPath>bin\Debug\</OutputPath>
-    <DocumentationFile>headspin.reportconfig.lib.xml</DocumentationFile>
+    <DocumentationFile>HeadSpin.App.Core.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
@@ -27,8 +32,9 @@
     <DefineTrace>true</DefineTrace>
     <Optimize>true</Optimize>
     <OutputPath>bin\Release\</OutputPath>
-    <DocumentationFile>headspin.reportconfig.lib.xml</DocumentationFile>
+    <DocumentationFile>HeadSpin.App.Core.xml</DocumentationFile>
     <NoWarn>42016,41999,42017,42018,42019,42032,42036,42020,42021,42022</NoWarn>
+    <Prefer32Bit>false</Prefer32Bit>
   </PropertyGroup>
   <PropertyGroup>
     <OptionExplicit>On</OptionExplicit>
@@ -44,7 +50,9 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="System" />
+    <Reference Include="System.configuration" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Drawing" />
     <Reference Include="System.Xml" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
@@ -59,10 +67,24 @@
     <Import Include="System.Diagnostics" />
     <Import Include="System.Linq" />
     <Import Include="System.Xml.Linq" />
-    <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
-    <Compile Include="ReportConfig.vb" />
+    <Compile Include="AppSvc.vb" />
+    <Compile Include="BusinessObject.vb" />
+    <Compile Include="BusinessObjectCollection.vb" />
+    <Compile Include="Criteria.vb" />
+    <Compile Include="Database\DB.vb" />
+    <Compile Include="Database\DBCmd.vb" />
+    <Compile Include="Database\DBMgr.vb" />
+    <Compile Include="Database\DBReader.vb" />
+    <Compile Include="Exceptions\FieldException.vb" />
+    <Compile Include="Exceptions\ConcurrentUpdateException.vb" />
+    <Compile Include="Helper.vb" />
+    <Compile Include="IUser.vb" />
+    <Compile Include="LinqHelper.vb" />
+    <Compile Include="Lookup.vb" />
+    <Compile Include="Mgr.vb" />
+    <Compile Include="Msg.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>
@@ -78,6 +100,10 @@
       <DependentUpon>Settings.settings</DependentUpon>
       <DesignTimeSharedInput>True</DesignTimeSharedInput>
     </Compile>
+    <Compile Include="SystemConfig.vb" />
+    <Compile Include="TblBase.vb" />
+    <Compile Include="TblLookup.vb" />
+    <Compile Include="UIListHelper.vb" />
   </ItemGroup>
   <ItemGroup>
     <EmbeddedResource Include="My Project\Resources.resx">
@@ -88,6 +114,59 @@
     </EmbeddedResource>
   </ItemGroup>
   <ItemGroup>
+    <None Include="app.config">
+      <SubType>Designer</SubType>
+    </None>
+    <None Include="CodeGen\BO.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BO.vb</LastGenOutput>
+    </None>
+    <None Include="CodeGen\BOTbl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>BOTbl.vb</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Context.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Context2.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Settings.ttinclude" />
+    <None Include="CodeGen\SP.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>SP.sql</LastGenOutput>
+    </None>
+    <None Include="CodeGen\SQLServer.ttinclude" />
+    <None Include="CodeGen\StoredProcedures.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>StoredProcedures1.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Structs.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Structs2.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\UI.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UI.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\UIModel.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UIModel.vb</LastGenOutput>
+    </None>
+    <None Include="CodeGen\UIvb.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>UIvb.vb</LastGenOutput>
+    </None>
+    <None Include="CodeGen\View2_BOTbl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>View2_BOTbl.vb</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Views_BO.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Views_BO2.cs</LastGenOutput>
+    </None>
+    <None Include="CodeGen\Views_BOTbl.tt">
+      <Generator>TextTemplatingFileGenerator</Generator>
+      <LastGenOutput>Views_BOTbl2.cs</LastGenOutput>
+    </None>
     <None Include="My Project\Application.myapp">
       <Generator>MyApplicationCodeGenerator</Generator>
       <LastGenOutput>Application.Designer.vb</LastGenOutput>
@@ -99,10 +178,11 @@
     </None>
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\HeadSpin.App.Core.v3\HeadSpin.App.Core.v3.vbproj">
-      <Project>{7d7b2afa-dbb4-4d97-a6f2-3b0056c19c49}</Project>
-      <Name>HeadSpin.App.Core.v3</Name>
-    </ProjectReference>
+    <Content Include="CodeGen\File1.txt" />
+    <Content Include="CodeGen\File2.txt" />
+  </ItemGroup>
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.VisualBasic.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 

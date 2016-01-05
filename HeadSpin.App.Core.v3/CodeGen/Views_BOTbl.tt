@@ -1,0 +1,58 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".cs" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+    var views =   LoadViews();
+#>
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using TJM.Core;
+
+namespace <#=Namespace#>
+{    
+    
+<#  foreach(View tbl in views){#>    
+      
+	public class Tbl<#=tbl.ClassName#> : cTblBase
+	{
+		public Tbl<#=tbl.ClassName#>()
+			: base()
+		{
+		<# foreach(var col in tbl.Columns){	#>
+			m_ColumnList.Add("<#=col.CleanName#>");
+		<# } #>
+		}
+
+		public enum COLS
+		{
+		<# int count=0;
+		foreach(var col in tbl.Columns){ #>
+		<# if (count==0)
+		{#>
+			<#=col.CleanName#> = 0,
+		<# } else {#>
+			<#=col.CleanName#>,
+		<# } #>
+		<# count++;} #>
+			SIZE                
+		};
+
+		public override string GetIDColumn()
+		{
+			return "<#=tbl.PrimaryKey#>";
+		}
+		public override string GetTableName()
+		{
+			return "<#=tbl.ClassName#>";
+		}
+		public override string GetSequenceName()
+		{
+			return "SEQ_<#=tbl.ClassName#>";
+		}	
+	}
+	
+<#}#>
+}

@@ -1,0 +1,126 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".sql" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+
+
+
+<#  foreach(Table tbl in tables){#>  
+SET ANSI_NULLS ON
+GO
+
+SET QUOTED_IDENTIFIER ON
+GO  
+      <# bool first=true; #>
+	Create PROCEDURE [dbo].[Save<#=tbl.ClassName#>](
+	<# first=true; foreach(var col in tbl.Columns) { #>		  
+	   <# if(col.CleanName!="LastEdit" && col.CleanName !="DateAdded") { #><# if(!first){ #>,<# } #> @<#=col.CleanName#> <#=col.DataType#><#=col.ColSize#> <#=CheckNullableSP(col)#> <# first=false; } #><# } #>
+		)
+		AS
+		BEGIN
+		   SET NOCOUNT ON
+			declare @id int
+				set @id = @<#=tbl.PrimaryKey#>
+
+			declare @now datetime
+				set @now = getdate()
+	
+			declare @created datetime
+				set @created = @now
+	
+			declare @updated datetime
+				set @updated = @now
+  
+			declare @nextLockId int
+				set @nextLockId = 1
+
+		   if @id = 0   
+				begin
+				set @updated=null
+				  INSERT INTO [<#=tbl.ClassName#>] (				   
+				<#  first=true; foreach(var col in tbl.Columns) { #> 
+				<# if(col.CleanName != tbl.PrimaryKey && col.CleanName!="LastEdit" && col.CleanName!="UpdatedBy") { #>
+				<# if(!first){ #>,<# } #> <#=col.CleanName#>  <# first=false; } #><# } #>
+				) Values (				
+				<#  first=true; foreach(var col in tbl.Columns) { #> 
+				 <# if(col.CleanName != tbl.PrimaryKey && col.CleanName!="LastEdit" && col.CleanName!="UpdatedBy") { #>
+				<# if(!first){ #>,<# } #> <# if (col.CleanName=="DateAdded") { #> @created <# } else if (col.CleanName=="LockId") { #> @nextLockId <# } else { #> @<#=col.CleanName#> <# } #> <# first=false; } #><# } #>)
+				set @id = SCOPE_IDENTITY()
+				end
+		   else
+				begin
+				  if @lockId < 255
+					set @nextLockId = @lockId + 1	
+	 
+			  UPDATE [<#=tbl.ClassName#>]
+			  Set <#  first=true; foreach(var col in tbl.Columns) { #> 
+			  <# if(col.CleanName != tbl.PrimaryKey  && col.CleanName!="DateAdded" && col.CleanName!="CreatedBy") { #>
+			  <# if(!first){ #>,<# } #> <# if(col.CleanName=="LastEdit") { #> [<#=col.CleanName#>] = @updated <# } else if (col.CleanName=="LockId") { #>[<#=col.CleanName#>] = @nextLockId <# } else { #>[<#=col.CleanName#>] = @<#=col.CleanName#> <# } #> <# first=false; } #>
+			  <# } #>  
+
+			  Where  [<#=tbl.PrimaryKey#>] = @id AND [LockId] = @lockId
+				end
+		
+		select @id, @nextLockId, @created, @updated, @@ROWCOUNT
+END
+
+GO
+
+Grant Exec On [dbo].[Save<#=tbl.ClassName#>] to appRole
+GO
+Create PROCEDURE [dbo].[Get<#=tbl.ClassName#>](
+	@<#=tbl.PrimaryKey#>  int = null)
+AS
+BEGIN
+   SET NOCOUNT ON
+   if @<#=tbl.PrimaryKey#> = 0
+      set @<#=tbl.PrimaryKey#> = null
+   
+   If IsNull(@<#=tbl.PrimaryKey#>, 0 ) > 0  
+	   Begin
+		   SELECT 
+			   <#  first=true; foreach(var col in tbl.Columns) { #> 
+				<# if(!first){ #>,<# } #> [<#=col.CleanName#>] <# first=false; } #>
+			  FROM  [<#=tbl.ClassName#>] (nolock)
+			WHERE
+			  [<#=tbl.PrimaryKey#>] = @<#=tbl.PrimaryKey#>
+	   End
+   Else
+	   Begin
+		SELECT 
+		   <#  first=true; foreach(var col in tbl.Columns) { #> 
+			<# if(!first){ #>,<# } #> [<#=col.CleanName#>] <# first=false; } #>
+		  FROM  [<#=tbl.ClassName#>] (nolock)
+		  -- use other columns here.
+		 --WHERE
+		 --	  [<#=tbl.PrimaryKey#>] = isnull(@<#=tbl.PrimaryKey#>, [<#=tbl.PrimaryKey#>])
+	   End
+
+   
+END
+GO
+
+Grant Exec On [dbo].[Get<#=tbl.ClassName#>] to appRole
+GO
+
+Create PROCEDURE [dbo].[Delete<#=tbl.ClassName#>](
+	@<#=tbl.PrimaryKey#>  int,
+	@LockId int )
+AS
+BEGIN
+   SET NOCOUNT ON
+
+   Delete From  
+		[<#=tbl.ClassName#>] 
+	Where
+      [<#=tbl.PrimaryKey#>] =  @<#=tbl.PrimaryKey#> and [LockId] = @LockId
+
+	Select @@ROWCOUNT
+END
+GO
+
+Grant Exec On [dbo].[Delete<#=tbl.ClassName#>] to appRole
+GO
+<#}#>

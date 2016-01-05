@@ -8,7 +8,7 @@ namespace headspin.reportmgr
 {
     public interface IReporter
     {
-        System.IO.StringWriter Download();
+        System.IO.StringWriter Download(string name, string info);
     }
 
 

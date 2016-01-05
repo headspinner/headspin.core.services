@@ -1,0 +1,133 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".vb" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+Imports System
+Imports System.ComponentModel
+Imports System.Linq
+Imports HeadSpin.App.Core
+Imports HeadSpin.App.Core.Database    
+    
+<#  foreach(Table tbl in tables){#>    
+       
+	Public Class <#=tbl.ClassName#>
+        Inherits BusinessObject
+        Public Sub New()
+        End Sub
+		 
+	    #Region "members"	    
+		<# foreach(var col in tbl.Columns){	#>        
+        <# if (col.CleanName == tbl.PrimaryKey) { #>        
+		Public Property  <#=col.CleanName#>() As <#=col.SysTypeVB#><#=CheckNullable(col)#>		 
+		    Get		    
+		        Return Me.ObjectId
+		    End Get 
+		    Set	(ByVal value As <#=col.SysTypeVB#><#=CheckNullable(col)#> )
+				Me.ObjectId = value
+		    End Set
+		End Property
+        <# } else if (
+				(col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && 
+			(col.CleanName != "LockId") && (col.CleanName != "UpdatedBy") && (col.CleanName != "CreatedBy") ) { #>
+        Private _<#=col.CleanName#> As <#=col.SysTypeVB#><#=CheckNullable(col)#> 
+		
+		Public Property  <#=col.CleanName#>() As <#=col.SysTypeVB#><#=CheckNullable(col)#>		 		 
+		    Get		    
+		        Return _<#=col.CleanName#>
+		    End Get 
+		    Set		    
+				_<#=col.CleanName#> = Me.CheckDirty(value, _<#=col.CleanName#>)
+		    End Set
+		End Property
+        <# } #>
+		<# } #>
+
+        #End Region        
+        
+		#Region "load/save/val/getList"		
+        
+		Public Shared Function GetById(ByVal id As Integer) As <#=tbl.ClassName#>
+            If id <= 0 Then
+                Throw New ArgumentException("Unable to load <#=tbl.ClassName#>, id argument was zero or less than zero")
+            End If
+
+            Dim crit As New Criteria
+            crit.Add(Of Integer)(Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#>.ToString, id)
+            Return <#=tbl.ClassName#>.GetOneObject(Of <#=tbl.ClassName#>)(New <#=tbl.ClassName#>(), crit)
+        End Function
+
+
+		#Region "getList"
+		Public Shared Function GetList(ByVal crit As Criteria) As BusinessObjectCollection(Of <#=tbl.ClassName#>)
+            Return <#=tbl.ClassName#>.GetObjectList(Of <#=tbl.ClassName#>)(New <#=tbl.ClassName#>(), crit)
+        End Function
+
+        Protected Overrides Function NewForListLoad() As BusinessObject
+            Return New <#=tbl.ClassName#>()
+        End Function
+		
+		 Protected Overrides Function GetListCmdImpl(ByVal db As DB, ByVal crit As Criteria) As  DBCmd
+            Dim cmd As DBCmd = db.NewCommand("Get<#=tbl.ClassName#>")
+
+            If crit IsNot Nothing Then
+				'Support get by id always!
+                Dim id As Integer = crit.Get(Of Integer)(Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#>.ToString(), 0)
+                
+                If (id > 0) Then
+                    cmd.AddParam(Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#>.ToString(), id)
+                End If
+				                
+            End If
+
+            Return cmd
+        End Function
+		#End Region
+
+        Protected Overrides Sub LoadBO(ByVal dbReader As DBReader)
+			<# foreach(var col in tbl.Columns) { 
+			if ((col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && (col.CleanName != "LockId") && (col.CleanName != "UpdatedBy") && (col.CleanName != "CreatedBy")){
+			string readerCall = "";	
+			if(	col.IsNullable && col.SysType != "string" && col.SysType != "byte[]"){
+				readerCall = "GetNullable" + col.SysTypeVB.Substring(0,1).ToUpper() + col.SysTypeVB.Substring(1) + "(Tbl" + tbl.ClassName + ".COLS." + col.CleanName + ".ToString())"; 
+			} else {
+				readerCall = "Get" + col.SysTypeVB.Substring(0,1).ToUpper() + col.SysTypeVB.Substring(1) + "(Tbl" + tbl.ClassName + ".COLS." + col.CleanName + ".ToString())"; 
+			}
+			#>	
+			<# if (col.CleanName == tbl.PrimaryKey){ #>
+			Me.<#=col.CleanName#> = dbReader.<#=readerCall#> 
+			<# } else { #>
+			Me._<#=col.CleanName#> = dbReader.<#=readerCall#> 
+			<# }}} #>
+
+			LoadBaseProperties(dbReader)
+		End Sub
+        
+        Protected Overrides Sub SaveBO(ByVal db As DB)
+			Dim cmd As DBCmd = db.NewCommand("Save<#=tbl.ClassName#>")			                
+            <# foreach(var col in tbl.Columns) { 
+			if ((col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && (col.CleanName != "LockId") && (col.CleanName != "UpdatedBy") && (col.CleanName != "CreatedBy")){#>
+			cmd.AddParam(Tbl<#=tbl.ClassName#>.COLS.<#=col.CleanName#>.ToString(), Me.<#=col.CleanName#>)			
+            <# }} #>
+
+			SetBaseProperties(cmd)
+			ProcessSaveResults(db.Execute(cmd))
+        End Sub
+        
+    	Public Overrides Sub Validate ( )		
+			' @@@ Add validation
+		End Sub
+
+	
+		Protected Overrides Sub RemoveBO(ByVal db As DB)
+            Dim cmd As DBCmd = db.NewCommand("Delete<#=tbl.ClassName#>")
+			cmd.AddParam(Tbl<#=tbl.ClassName#>.COLS.<#=tbl.PrimaryKey#>.ToString(), Me.<#=tbl.PrimaryKey#>)            
+            cmd.AddParam(TblBase.BaseCOLS.LockId.ToString(), Me.LockId)
+
+            ProcessDeleteResults(db.Execute(cmd))
+        End Sub
+        #End Region
+
+	End Class
+<#}#>

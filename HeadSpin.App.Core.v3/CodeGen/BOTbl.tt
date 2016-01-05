@@ -1,0 +1,24 @@
+﻿<#@ template language="C#v3.5" debug="False" hostspecific="True"  #>
+<#@ output extension=".vb" #>
+<#@ include file="SQLServer.ttinclude" #>
+<#
+    var tables = LoadTables();
+#>
+Imports System
+Imports HeadSpin.App.Core
+      
+<# foreach(Table tbl in tables){#>    
+      
+	Public Class Tbl<#=tbl.ClassName#>
+		Inherits TblBase
+        
+		Public Enum COLS
+			<# int count=0; foreach(var col in tbl.Columns){ if ((col.CleanName != "LastEdit") && (col.CleanName != "DateAdded") && (col.CleanName != "LockId") && (col.CleanName != "UpdatedBy") && (col.CleanName != "CreatedBy")){#><# if (count==0){#>
+				<#=col.CleanName#> = 0 
+				<# } else {#>
+				<#=col.CleanName#>
+				<# } #><# count++;}} #>
+			SIZE                
+		End Enum
+	End Class
+<#}#>
