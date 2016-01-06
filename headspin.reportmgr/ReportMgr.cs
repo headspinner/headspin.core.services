@@ -76,9 +76,11 @@ namespace headspin.reportmgr
        
     //End Function
 
-        public static System.IO.StringWriter RunReport(int reportid)
+        public System.IO.StringWriter RunReport(int reportid)
         {
 
+            HeadSpin.App.Core.AppSvc.Initialize();
+        
             ReportConfig config;
             config = ReportConfig.GetById(reportid);
 
@@ -87,7 +89,7 @@ namespace headspin.reportmgr
             //return report and call download
             //send back
 
-            IReporter writer = null;
+            IReporter writer = ReportMgrFactory.GetReporter(config);
 
             return writer.Download(config.Name, config.ConfigInfo);
         }

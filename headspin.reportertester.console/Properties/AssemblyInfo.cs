@@ -5,11 +5,11 @@ using System.Runtime.InteropServices;
 // General Information about an assembly is controlled through the following 
 // set of attributes. Change these attribute values to modify the information
 // associated with an assembly.
-[assembly: AssemblyTitle("ConsoleTester")]
+[assembly: AssemblyTitle("headspin.reportertester.console")]
 [assembly: AssemblyDescription("")]
 [assembly: AssemblyConfiguration("")]
 [assembly: AssemblyCompany("")]
-[assembly: AssemblyProduct("ConsoleTester")]
+[assembly: AssemblyProduct("headspin.reportertester.console")]
 [assembly: AssemblyCopyright("Copyright ©  2016")]
 [assembly: AssemblyTrademark("")]
 [assembly: AssemblyCulture("")]
@@ -20,7 +20,7 @@ using System.Runtime.InteropServices;
 [assembly: ComVisible(false)]
 
 // The following GUID is for the ID of the typelib if this project is exposed to COM
-[assembly: Guid("5037043d-b03a-4113-b4a2-4bcc48bc0070")]
+[assembly: Guid("5b64ea5c-247a-495b-ac04-7ccad04e0418")]
 
 // Version information for an assembly consists of the following four values:
 //
