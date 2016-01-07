@@ -283,3 +283,5 @@ headspin.reportertester.console/obj/Debug/headspin.reportertester.console.exe
 headspin.reportertester.console/bin/
 packages/jQuery.Validation.1.11.1/Content/Scripts/jquery.validate.min.js
 packages/jQuery.Validation.1.11.1/jQuery.Validation.1.11.1.nupkg
+CustomTesterReport/obj/
+CustomTesterReport/bin/

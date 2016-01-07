@@ -36,7 +36,7 @@ namespace headspin.reportmgr
         {
             var key = fullyQualifiedClassName + assemblyName;
 
-            if (_HandlerCache.ContainsKey(key) == true)
+            if (_HandlerCache.ContainsKey(key) == false)
             {
                 Assembly asb = System.Reflection.Assembly.Load(assemblyName);
 

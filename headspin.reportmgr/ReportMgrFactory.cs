@@ -22,9 +22,12 @@ namespace headspin.reportmgr
             }
             else if(config.TypeCode == "CUSTOM")
             {
+
+                var r = ReportMgr.Instance.GetHandler(config.Name, config.ConfigInfo);
+
+                return r;
+
                 
-                //return ReportMgr.Instance.GetHandler();
-                return null;
             }
             else
             {
