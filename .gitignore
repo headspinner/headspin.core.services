@@ -285,3 +285,7 @@ packages/jQuery.Validation.1.11.1/Content/Scripts/jquery.validate.min.js
 packages/jQuery.Validation.1.11.1/jQuery.Validation.1.11.1.nupkg
 CustomTesterReport/obj/
 CustomTesterReport/bin/
+MessageMgr/bin/
+MessageMgr/obj/
+packages/
+headspin.core.services.v12.suo
