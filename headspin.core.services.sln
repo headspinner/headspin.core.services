@@ -17,6 +17,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "CustomTesterReport", "Custo
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "HeadSpin.SmsMgr", "MessageMgr\HeadSpin.SmsMgr.csproj", "{3B36437F-484C-4AED-A15B-E21D0900AE76}"
 EndProject
+Project("{F184B08F-C81C-45F6-A57F-5ABD9991F28F}") = "headspin.docblob", "headspin.docblob\headspin.docblob.vbproj", "{A20C8640-2627-462E-9B18-8F4900BFA9F0}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -51,6 +53,10 @@ Global
 		{3B36437F-484C-4AED-A15B-E21D0900AE76}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{3B36437F-484C-4AED-A15B-E21D0900AE76}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{3B36437F-484C-4AED-A15B-E21D0900AE76}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A20C8640-2627-462E-9B18-8F4900BFA9F0}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A20C8640-2627-462E-9B18-8F4900BFA9F0}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A20C8640-2627-462E-9B18-8F4900BFA9F0}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A20C8640-2627-462E-9B18-8F4900BFA9F0}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE
