@@ -14,6 +14,7 @@ Public Class TblDocBlob
         AddedBy
         EditedBy
         Desc
+        ClassName
         SIZE
     End Enum
 End Class
@@ -21,7 +22,7 @@ End Class
 
 Public Class DocBlob
     Inherits BusinessObject
-    Public Sub New()
+    Friend Sub New()
     End Sub
 
 #Region "members"
@@ -127,6 +128,21 @@ Public Class DocBlob
         End Set
     End Property
 
+    Private _ClassName As String
+
+    Public Property ClassName() As String
+        Get
+            Return _ClassName
+        End Get
+        Set(value As String)
+            _ClassName = Me.CheckDirty(value, _ClassName)
+        End Set
+    End Property
+
+    Public Overrides Function GetFullyQualifiedClassName() As String
+        Return String.Format("{0}.{1}", Me.GetType.Namespace, Me.GetType.Name.ToString())
+    End Function
+
 #End Region
 
 #Region "load/save/val/getList"
@@ -139,6 +155,20 @@ Public Class DocBlob
         Dim crit As New Criteria
         crit.Add(Of Integer)(TblDocBlob.COLS.DocBlobId.ToString, id)
         Return DocBlob.GetOneObject(Of DocBlob)(New DocBlob(), crit)
+    End Function
+
+    Public Shared Function GetByObjIdAndClassName(ByVal fkId As Integer, ByVal className As String) As BusinessObjectCollection(Of DocBlob)
+        If fkId <= 0 Then
+            Throw New ArgumentException("Unable to load DocBlob, id argument was zero or less than zero")
+        End If
+        If String.IsNullOrWhiteSpace(className) Then
+            Throw New ArgumentException("Unable to load DocBlob, classname argument was null.")
+        End If
+
+        Dim crit As New Criteria
+        crit.Add(Of Integer)(TblDocBlob.COLS.DocBlobFK.ToString, fkId)
+        crit.Add(Of String)(TblDocBlob.COLS.ClassName.ToString, className)
+        Return DocBlob.GetObjectList(Of DocBlob)(New DocBlob(), crit)
     End Function
 
 
@@ -157,9 +187,19 @@ Public Class DocBlob
         If crit IsNot Nothing Then
             'Support get by id always!
             Dim id As Integer = crit.Get(Of Integer)(TblDocBlob.COLS.DocBlobId.ToString(), 0)
+            Dim docBlobFK As Integer = crit.Get(Of Integer)(TblDocBlob.COLS.DocBlobFK.ToString(), 0)
+            Dim className As String = crit.Get(Of String)(TblDocBlob.COLS.ClassName.ToString(), 0)
 
             If (id > 0) Then
                 cmd.AddParam(TblDocBlob.COLS.DocBlobId.ToString(), id)
+            End If
+
+            If (docBlobFK > 0) Then
+                cmd.AddParam(TblDocBlob.COLS.DocBlobFK.ToString(), docBlobFK)
+            End If
+
+            If String.IsNullOrWhiteSpace(className) = False Then
+                cmd.AddParam(TblDocBlob.COLS.ClassName.ToString(), className)
             End If
 
         End If
@@ -182,11 +222,13 @@ Public Class DocBlob
 
         Me._AttachmentFileName = dbReader.GetString(TblDocBlob.COLS.AttachmentFileName.ToString())
 
-        Me._AddedBy = dbReader.GetString(TblDocBlob.COLS.AddedBy.ToString())
+        'Me._AddedBy = dbReader.GetString(TblDocBlob.COLS.AddedBy.ToString())
 
-        Me._EditedBy = dbReader.GetString(TblDocBlob.COLS.EditedBy.ToString())
+        'Me._EditedBy = dbReader.GetString(TblDocBlob.COLS.EditedBy.ToString())
 
         Me._Desc = dbReader.GetString(TblDocBlob.COLS.Desc.ToString())
+
+        Me._ClassName = dbReader.GetString(TblDocBlob.COLS.ClassName.ToString())
 
         LoadBaseProperties(dbReader)
     End Sub
@@ -199,9 +241,10 @@ Public Class DocBlob
         cmd.AddParam(TblDocBlob.COLS.StatusCode.ToString(), Me.StatusCode)
         cmd.AddParam(TblDocBlob.COLS.AttachmentBytes.ToString(), Me.AttachmentBytes)
         cmd.AddParam(TblDocBlob.COLS.AttachmentFileName.ToString(), Me.AttachmentFileName)
-        cmd.AddParam(TblDocBlob.COLS.AddedBy.ToString(), Me.AddedBy)
-        cmd.AddParam(TblDocBlob.COLS.EditedBy.ToString(), Me.EditedBy)
+        'cmd.AddParam(TblDocBlob.COLS.AddedBy.ToString(), Me.AddedBy)
+        'cmd.AddParam(TblDocBlob.COLS.EditedBy.ToString(), Me.EditedBy)
         cmd.AddParam(TblDocBlob.COLS.Desc.ToString(), Me.Desc)
+        cmd.AddParam(TblDocBlob.COLS.ClassName.ToString(), Me.ClassName)
 
         SetBaseProperties(cmd)
         ProcessSaveResults(db.Execute(cmd))

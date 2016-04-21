@@ -83,6 +83,10 @@ Public Class SystemConfig
         End Set
     End Property
 
+    Public Overrides Function GetFullyQualifiedClassName() As String
+        Return Me.GetType.AssemblyQualifiedName.ToString()
+    End Function
+
 #End Region
 
 #Region "load/save/val/getList"

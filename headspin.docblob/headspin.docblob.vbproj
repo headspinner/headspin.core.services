@@ -62,8 +62,9 @@
     <Import Include="System.Threading.Tasks" />
   </ItemGroup>
   <ItemGroup>
+    <Compile Include="Constants.vb" />
     <Compile Include="DocBlob.vb" />
-    <Compile Include="DocBlobSvc.vb" />
+    <Compile Include="DocBlobMgr.vb" />
     <Compile Include="My Project\AssemblyInfo.vb" />
     <Compile Include="My Project\Application.Designer.vb">
       <AutoGen>True</AutoGen>

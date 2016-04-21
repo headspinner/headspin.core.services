@@ -487,6 +487,8 @@ Public MustInherit Class BusinessObject
         m_bIsDirty = bDirty
     End Sub
 
+    Public MustOverride Function GetFullyQualifiedClassName() As String
+
 End Class
 
 
